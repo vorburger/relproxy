@@ -17,9 +17,7 @@ import com.innowhere.relproxy.jproxy.JProxyInputSourceFileExcludedListener;
  */
 public abstract class JProxyImpl extends GenericProxyImpl
 {
-    public static JProxyImpl SINGLETON;      
     protected JProxyEngine engine;
-
     
     protected JProxyImpl()
     {
