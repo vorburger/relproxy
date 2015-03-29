@@ -15,11 +15,11 @@ import com.innowhere.relproxy.jproxy.JProxyInputSourceFileExcludedListener;
  *
  * @author jmarranz
  */
-public abstract class JProxyImpl extends GenericProxyImpl
+public class JProxyImpl extends GenericProxyImpl
 {
     protected JProxyEngine engine;
     
-    protected JProxyImpl()
+    public JProxyImpl()
     {
     }
     
@@ -84,5 +84,7 @@ public abstract class JProxyImpl extends GenericProxyImpl
         return new JProxyInvocationHandler(obj,this);
     }
     
-    public abstract Class getMainParamClass();
+    public Class getMainParamClass() {
+    	return null;
+    }
 }

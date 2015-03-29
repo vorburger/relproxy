@@ -1,9 +1,9 @@
 package com.innowhere.relproxy.impl;
 
-import com.innowhere.relproxy.RelProxyException;
-import com.innowhere.relproxy.RelProxyOnReloadListener;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+
+import com.innowhere.relproxy.RelProxyOnReloadListener;
 
 /**
  *
@@ -17,18 +17,6 @@ public abstract class GenericProxyImpl
     {
     }
 
-    public static void checkSingletonNull(GenericProxyImpl singleton)
-    {
-        if (singleton != null) 
-            throw new RelProxyException("Already initialized");
-    }
-    
-    protected static void checkSingletonExists(GenericProxyImpl singleton)
-    {
-        if (singleton == null) 
-            throw new RelProxyException("Execute first the init method");
-    }    
-    
     protected void init(GenericProxyConfigBaseImpl config)
     {
         this.reloadListener = config.getRelProxyOnReloadListener(); 
