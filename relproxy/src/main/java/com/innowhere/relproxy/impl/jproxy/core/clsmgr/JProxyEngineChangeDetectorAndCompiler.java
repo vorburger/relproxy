@@ -1,15 +1,11 @@
 package com.innowhere.relproxy.impl.jproxy.core.clsmgr;
 
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRootInMemory;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRoot;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceUnit;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRootFile;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceFileJavaNormal;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceUnit;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptor;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileRegistry;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorInner;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceScript;
 import com.innowhere.relproxy.impl.jproxy.JProxyUtil;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp.JProxyCompilerContext;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp.JProxyCompilerInMemory;
@@ -29,19 +25,17 @@ public class JProxyEngineChangeDetectorAndCompiler
     protected JProxyCompilerInMemory compiler; 
     protected FolderSourceList folderSourceList;    
     protected FolderSourceList requiredExtraJarPaths;
-    protected SourceScriptRoot scriptFile; // Puede ser nulo
     protected String folderClasses; // Puede ser nulo (es decir NO salvar como .class los cambios)    
     protected JProxyInputSourceFileExcludedListener excludedListener;    
     protected JavaSourcesSearch sourcesSearch;
     protected JProxyCompilerListener compilerListener;    
     protected ClassDescriptorSourceFileRegistry sourceRegistry;
     
-    public JProxyEngineChangeDetectorAndCompiler(JProxyEngine engine,SourceScriptRoot scriptFile,FolderSourceList folderSourceList,FolderSourceList requiredExtraJarPaths,
+    public JProxyEngineChangeDetectorAndCompiler(JProxyEngine engine, FolderSourceList folderSourceList,FolderSourceList requiredExtraJarPaths,
             String folderClasses, JProxyInputSourceFileExcludedListener excludedListener,Iterable<String> compilationOptions,JProxyDiagnosticsListener diagnosticsListener,
             JProxyCompilerListener compilerListener)
     {
         this.engine = engine;
-        this.scriptFile = scriptFile;
         this.folderSourceList = folderSourceList; 
         this.requiredExtraJarPaths = requiredExtraJarPaths;
         this.folderClasses = folderClasses;
@@ -107,7 +101,7 @@ public class JProxyEngineChangeDetectorAndCompiler
         compiler.compileSourceFile(sourceFile,context,engine.getCurrentClassLoader(),sourceRegistry);      
     }            
     
-    public synchronized ClassDescriptorSourceScript detectChangesInSources()
+    public synchronized void detectChangesInSources()
     {
         // boolean firstTime = (sourceFileMap == null); // La primera vez sourceFileMap es null
 
@@ -118,7 +112,7 @@ public class JProxyEngineChangeDetectorAndCompiler
         ClassDescriptorSourceFileRegistry oldSourceRegistry = this.sourceRegistry; // Puede ser null (la primera vez)
         ClassDescriptorSourceFileRegistry newSourceRegistry = new ClassDescriptorSourceFileRegistry();
         
-        ClassDescriptorSourceScript scriptFileDesc = sourcesSearch.sourceFileSearch(scriptFile,oldSourceRegistry,newSourceRegistry,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
+        sourcesSearch.sourceFileSearch(oldSourceRegistry,newSourceRegistry,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
         
         this.sourceRegistry = newSourceRegistry;
 
@@ -150,12 +144,7 @@ public class JProxyEngineChangeDetectorAndCompiler
                         if (compilerListener != null)
                         {                           
                             SourceUnit srcUnit = sourceFile.getSourceUnit();
-                            if (srcUnit instanceof SourceFileJavaNormal)
-                                file = ((SourceFileJavaNormal)srcUnit).getFileExt().getFile();
-                            else if (srcUnit instanceof SourceScriptRootFile)
-                                file = ((SourceScriptRootFile)srcUnit).getFileExt().getFile();
-                            else if (srcUnit instanceof SourceScriptRootInMemory) // Caso de shell interactive y code snippet, en ese caso NO hay listener porque no hay forma de definirlo
-                                file = null;
+                            file = ((SourceFileJavaNormal)srcUnit).getFileExt().getFile();
                         }
                         
                         if (compilerListener != null && file != null)
@@ -189,8 +178,6 @@ public class JProxyEngineChangeDetectorAndCompiler
                           
             engine.setNeedReload(true);
         }
-        
-        return scriptFileDesc;
     }    
     
     private void saveClasses(ClassDescriptorSourceUnit sourceFile)

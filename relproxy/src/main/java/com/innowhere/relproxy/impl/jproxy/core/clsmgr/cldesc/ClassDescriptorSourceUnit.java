@@ -1,10 +1,10 @@
 package com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc;
 
+import java.util.LinkedList;
+
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.JProxyEngine;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceFileJavaNormal;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRoot;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceUnit;
-import java.util.LinkedList;
 
 /**
  *
@@ -27,12 +27,10 @@ public abstract class ClassDescriptorSourceUnit extends ClassDescriptor
 
     public static ClassDescriptorSourceUnit create(boolean script,JProxyEngine engine,String className,SourceUnit sourceFile, long timestamp)
     {
-        if (sourceFile instanceof SourceScriptRoot)
-            return new ClassDescriptorSourceScript(engine,className,(SourceScriptRoot)sourceFile,timestamp);  
-        else if (sourceFile instanceof SourceFileJavaNormal)
+        if (sourceFile instanceof SourceFileJavaNormal)
             return new ClassDescriptorSourceFileJava(engine,className,(SourceFileJavaNormal)sourceFile,timestamp);
         else
-            return null; // WTF!!
+            throw new IllegalArgumentException("sourceFile is not an instanceof SourceFileJavaNormal");
     }
     
     public SourceUnit getSourceUnit()

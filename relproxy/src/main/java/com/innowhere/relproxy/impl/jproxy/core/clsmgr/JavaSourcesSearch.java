@@ -1,14 +1,11 @@
 package com.innowhere.relproxy.impl.jproxy.core.clsmgr;
 
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRootFileJavaExt;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRoot;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceUnit;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceFileJavaNormal;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceUnit;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptor;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileRegistry;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileJava;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceScript;
 import com.innowhere.relproxy.RelProxyException;
 import com.innowhere.relproxy.impl.FileExt;
 import com.innowhere.relproxy.impl.jproxy.JProxyUtil;
@@ -35,16 +32,11 @@ public class JavaSourcesSearch
         return parent;
     }
     
-    public ClassDescriptorSourceScript sourceFileSearch(SourceScriptRoot scriptFile,ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)
+    public void sourceFileSearch(ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)
     {
-        ClassDescriptorSourceScript scriptFileDesc = (scriptFile == null) ? null : processSourceFileScript(scriptFile,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
         FileExt[] folderSourceList = parent.getFolderSourceList().getArray();
-        if (folderSourceList == null) // Es el caso de shell interactivo o code snippet
-            return scriptFileDesc;
         
         boolean allEmpty = true;
-
-        String scriptFileJavaCannonPath = (scriptFile != null && (scriptFile instanceof SourceScriptRootFileJavaExt)) ? ((SourceScriptRootFileJavaExt)scriptFile).getFileExt().getCanonicalPath() : null;
 
         for(int i = 0; i < folderSourceList.length; i++)
         {
@@ -54,7 +46,7 @@ public class JavaSourcesSearch
             if (children.length == 0) continue; // Empty
 
             if (allEmpty) allEmpty = false;
-            recursiveSourceFileJavaSearch(scriptFileJavaCannonPath, i ,rootFolderOfSources,children,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);           
+            recursiveSourceFileJavaSearch(i ,rootFolderOfSources,children,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);           
         }
 
         if (oldSourceFileMap != null && !oldSourceFileMap.isEmpty())        
@@ -62,11 +54,9 @@ public class JavaSourcesSearch
         
         if (allEmpty)
             throw new RelProxyException("All specified input source folders are empty");
-
-        return scriptFileDesc;
     }
     
-    private void recursiveSourceFileJavaSearch(String scriptFileJavaCannonPath,int rootFolderOfSourcesIndex,FileExt parentPath,String[] relPathList,ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)
+    private void recursiveSourceFileJavaSearch(int rootFolderOfSourcesIndex,FileExt parentPath,String[] relPathList,ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)
     {
         FileExt rootFolderOfSources = parent.getFolderSourceList().getArray()[rootFolderOfSourcesIndex];           
         JProxyInputSourceFileExcludedListener listener = parent.getJProxyInputSourceFileExcludedListener();        
@@ -81,7 +71,7 @@ public class JavaSourcesSearch
                     continue;                
                 
                 String[] children = file.list();  // Si está vacío el array está vacío pero existe
-                recursiveSourceFileJavaSearch(scriptFileJavaCannonPath,rootFolderOfSourcesIndex,fileExt,children,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
+                recursiveSourceFileJavaSearch(rootFolderOfSourcesIndex,fileExt,children,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
             }
             else
             {
@@ -90,8 +80,6 @@ public class JavaSourcesSearch
                 //if (!"jsh".equals(ext)) continue;
 
                 String cannonPath = JProxyUtil.getCanonicalPath(file);
-                if (scriptFileJavaCannonPath != null && scriptFileJavaCannonPath.equals(cannonPath))
-                    continue; // Es el propio archivo script inicial que es .java, así evitamos considerarlo dos veces
                 
                 if (listener != null && listener.isExcluded(file,rootFolderOfSources.getFile())) 
                     continue;
@@ -100,11 +88,6 @@ public class JavaSourcesSearch
                 processSourceFileJava(sourceFile,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);
             }
         }
-    }    
-    
-    private ClassDescriptorSourceScript processSourceFileScript(SourceScriptRoot file,ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)
-    {             
-        return (ClassDescriptorSourceScript)processSourceFile(file,true,oldSourceFileMap,newSourceFileMap,updatedSourceFiles,newSourceFiles,deletedSourceFiles);        
     }    
     
     private ClassDescriptorSourceFileJava processSourceFileJava(SourceFileJavaNormal file,ClassDescriptorSourceFileRegistry oldSourceFileMap,ClassDescriptorSourceFileRegistry newSourceFileMap,LinkedList<ClassDescriptorSourceUnit> updatedSourceFiles,LinkedList<ClassDescriptorSourceUnit> newSourceFiles,LinkedList<ClassDescriptorSourceUnit> deletedSourceFiles)

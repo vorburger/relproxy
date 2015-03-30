@@ -3,10 +3,8 @@ package com.innowhere.relproxy.impl.jproxy.core;
 import com.innowhere.relproxy.impl.GenericProxyImpl;
 import com.innowhere.relproxy.impl.GenericProxyInvocationHandler;
 import com.innowhere.relproxy.impl.jproxy.JProxyConfigImpl;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceScript;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.FolderSourceList;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.JProxyEngine;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRoot;
 import com.innowhere.relproxy.jproxy.JProxyCompilerListener;
 import com.innowhere.relproxy.jproxy.JProxyDiagnosticsListener;
 import com.innowhere.relproxy.jproxy.JProxyInputSourceFileExcludedListener;
@@ -28,12 +26,12 @@ public class JProxyImpl extends GenericProxyImpl
         return Thread.currentThread().getContextClassLoader();
     }
     
-    public ClassDescriptorSourceScript init(JProxyConfigImpl config)
+    public void init(JProxyConfigImpl config)
     {    
-        return init(config,null,null);
+        init(config,null);
     }    
     
-    public ClassDescriptorSourceScript init(JProxyConfigImpl config,SourceScriptRoot scriptFile,ClassLoader classLoader)
+    public void init(JProxyConfigImpl config,ClassLoader classLoader)
     {
         super.init(config);
         
@@ -48,9 +46,9 @@ public class JProxyImpl extends GenericProxyImpl
         boolean enabled = config.isEnabled();
         
         classLoader = classLoader != null ? classLoader : getDefaultClassLoader();      
-        this.engine = new JProxyEngine(this,enabled,scriptFile,classLoader,folderSourceList,requiredExtraJarPaths,classFolder,scanPeriod,excludedListener,compilerListener,compilationOptions,diagnosticsListener);          
+        this.engine = new JProxyEngine(this,enabled,classLoader,folderSourceList,requiredExtraJarPaths,classFolder,scanPeriod,excludedListener,compilerListener,compilationOptions,diagnosticsListener);          
         
-        return engine.init();
+        engine.init();
     }    
        
     public JProxyEngine getJProxyEngine()

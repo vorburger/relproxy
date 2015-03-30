@@ -1,11 +1,9 @@
 package com.innowhere.relproxy.impl.jproxy.core.clsmgr;
 
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.srcunit.SourceScriptRoot;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceUnit;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptor;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileRegistry;
 import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorInner;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceScript;
 import com.innowhere.relproxy.impl.jproxy.core.JProxyImpl;
 import com.innowhere.relproxy.jproxy.JProxyCompilerListener;
 import com.innowhere.relproxy.jproxy.JProxyDiagnosticsListener;
@@ -31,7 +29,7 @@ public class JProxyEngine
     protected boolean needReload = false;     
     protected boolean enabled;    
     
-    public JProxyEngine(JProxyImpl parent,boolean enabled,SourceScriptRoot scriptFile,ClassLoader rootClassLoader,FolderSourceList folderSourceList,FolderSourceList requiredExtraJarPaths,
+    public JProxyEngine(JProxyImpl parent,boolean enabled,ClassLoader rootClassLoader,FolderSourceList folderSourceList,FolderSourceList requiredExtraJarPaths,
                 String folderClasses,long scanPeriod,JProxyInputSourceFileExcludedListener excludedListener,
                 JProxyCompilerListener compilerListener,Iterable<String> compilationOptions,JProxyDiagnosticsListener diagnosticsListener)
     {
@@ -39,7 +37,7 @@ public class JProxyEngine
         this.enabled = enabled;        
         this.rootClassLoader = rootClassLoader;
         this.scanPeriod = scanPeriod;
-        this.delegateChangeDetector = new JProxyEngineChangeDetectorAndCompiler(this,scriptFile,folderSourceList,requiredExtraJarPaths,folderClasses,excludedListener,compilationOptions,diagnosticsListener,compilerListener);        
+        this.delegateChangeDetector = new JProxyEngineChangeDetectorAndCompiler(this,folderSourceList,requiredExtraJarPaths,folderClasses,excludedListener,compilationOptions,diagnosticsListener,compilerListener);        
         this.customClassLoader = null; //new JProxyClassLoader(this);
     }
     
@@ -53,15 +51,13 @@ public class JProxyEngine
         return enabled;
     }    
     
-    public synchronized ClassDescriptorSourceScript init()
+    public synchronized void init()
     {
-        ClassDescriptorSourceScript scriptFileDesc = detectChangesInSources(); // Primera vez para detectar cambios en los .java respecto a los .class mientras el servidor estaba parado
+        detectChangesInSources(); // Primera vez para detectar cambios en los .java respecto a los .class mientras el servidor estaba parado
         
         reloadWhenChanged(); // La primera vez cargamos pues el código fuente manda sobre los .class
 
         startScanner();
-        
-        return scriptFileDesc;
     }
     
     /*
@@ -239,16 +235,15 @@ public class JProxyEngine
         }     
     }    
     
-    public synchronized ClassDescriptorSourceScript detectChangesInSources()
+    public synchronized void detectChangesInSources()
     {
-        return delegateChangeDetector.detectChangesInSources();
+        delegateChangeDetector.detectChangesInSources();
     }    
    
-    public synchronized ClassDescriptorSourceScript detectChangesInSourcesAndReload()
+    public synchronized void detectChangesInSourcesAndReload()
     {
-        ClassDescriptorSourceScript res = delegateChangeDetector.detectChangesInSources();
+        delegateChangeDetector.detectChangesInSources();
         reloadWhenChanged();
-        return res;
     }    
        
     public synchronized boolean reloadWhenChanged()

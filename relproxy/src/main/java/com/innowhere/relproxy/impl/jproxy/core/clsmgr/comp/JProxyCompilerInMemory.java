@@ -1,27 +1,27 @@
 package com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp;
 
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp.jfo.JavaFileObjectInputSourceInMemory;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp.jfo.JavaFileObjectOutputClass;
-import com.innowhere.relproxy.RelProxyException;
-import com.innowhere.relproxy.impl.FileExt;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptor;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorInner;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceUnit;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileJava;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileRegistry;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceScript;
-import com.innowhere.relproxy.impl.jproxy.core.clsmgr.JProxyEngineChangeDetectorAndCompiler;
-import com.innowhere.relproxy.jproxy.JProxyDiagnosticsListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+
+import com.innowhere.relproxy.RelProxyException;
+import com.innowhere.relproxy.impl.FileExt;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.JProxyEngineChangeDetectorAndCompiler;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptor;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorInner;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileJava;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceFileRegistry;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.cldesc.ClassDescriptorSourceUnit;
+import com.innowhere.relproxy.impl.jproxy.core.clsmgr.comp.jfo.JavaFileObjectOutputClass;
+import com.innowhere.relproxy.jproxy.JProxyDiagnosticsListener;
 
 /**
  *
@@ -128,14 +128,6 @@ public class JProxyCompilerInMemory
             List<File> sourceFileList = new ArrayList<File>();
             sourceFileList.add(((ClassDescriptorSourceFileJava)sourceFileDesc).getSourceFile().getFile());            
             compilationUnits = standardFileManager.getJavaFileObjectsFromFiles(sourceFileList);
-        }
-        else if (sourceFileDesc instanceof ClassDescriptorSourceScript)
-        {
-            ClassDescriptorSourceScript sourceFileDescScript = (ClassDescriptorSourceScript)sourceFileDesc;
-            LinkedList<JavaFileObject> compilationUnitsList = new LinkedList<JavaFileObject>();            
-            String code = sourceFileDescScript.getSourceCode();
-            compilationUnitsList.add(new JavaFileObjectInputSourceInMemory(sourceFileDescScript.getClassName(),code,sourceFileDescScript.getEncoding(),sourceFileDescScript.getTimestamp()));            
-            compilationUnits = compilationUnitsList;                
         }
         else
         {
